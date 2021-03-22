@@ -3,7 +3,7 @@ import os
 
 import click
 
-from pymsf.discoverer import read_discoverer_msf
+from msf.discoverer import read_discoverer_msf
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
