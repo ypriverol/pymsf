@@ -11,13 +11,13 @@ The script allows to filter the result peptide table by using the Confidence Lev
 
 ## Install
 
-```
+```bash
 $> python setup.py
 ```
 
 ## Usage
 
-```
+```bash
 $> pymsf --help
 Unable to find any expected data directories relative to /Users/yperez/IdeaProjects/github-repo/BDP/pymsf: CAMV Output, Searched, MS RAW, Figures
 Setting base path to /Users/yperez/IdeaProjects/github-repo/BDP/pymsf, consider calling paths.set_base_dir()
@@ -28,4 +28,10 @@ Options:
   -o, --output TEXT    Output tab
   -f, --filter         Filter only High-confidence peptides
   --help               Show this message and exit.
+```
+
+The user can provide a file like:
+
+```bash
+$> pymsf --msf_file /Users/yperez/my_file.msf --output output.tsv --filter
 ```
