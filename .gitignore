@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.msf
+/Instrument1_sample01_S1R1_121115_Fr.msf

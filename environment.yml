@@ -1,0 +1,14 @@
+# You can use this file to create a conda environment for this pipeline:
+#   conda env create -f environment.yml
+name: pymsf-conda
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - conda-forge::python=3.8.5
+  - conda-forge::numpy
+  - conda-forge::pandas
+  - conda-forge::click
+  - conda-forge::pip
+  - pip:
+      - pyproteome
