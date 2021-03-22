@@ -19,8 +19,6 @@ $> python setup.py
 
 ```bash
 $> pymsf --help
-Unable to find any expected data directories relative to /Users/yperez/IdeaProjects/github-repo/BDP/pymsf: CAMV Output, Searched, MS RAW, Figures
-Setting base path to /Users/yperez/IdeaProjects/github-repo/BDP/pymsf, consider calling paths.set_base_dir()
 Usage: pymsf [OPTIONS]
 
 Options:
