@@ -12,7 +12,7 @@ The script allows to filter the result peptide table by using the Confidence Lev
 ## Install
 
 ```bash
-$> python setup.py
+$> python setup.py install 
 ```
 
 ## Usage
