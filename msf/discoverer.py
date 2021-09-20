@@ -12,6 +12,8 @@ import logging
 import os
 import re
 import sqlite3
+import sys
+import xml.etree.ElementTree as ET
 
 import numpy as np
 import pandas as pd
@@ -43,6 +45,61 @@ def _get_pd_version(cursor):
         ''',
     )
     return tuple([int(i) for i in next(query)[0].split('.')])
+
+
+def _get_quant_tags(cursor, pd_version):
+  if pd_version[:1] in [(1 ,4)]:
+    quantification = cursor.execute(
+      '''
+      SELECT
+      ParameterValue
+      FROM ProcessingNodeParameters
+      WHERE ProcessingNodeParameters.ParameterName='QuantificationMethod'
+      ''',
+    ).fetchone()
+
+    if quantification:
+      quantification = quantification[0]
+
+      if sys.version_info.major < 3:
+        quantification = quantification.encode('utf-8')
+
+      root = ET.fromstring(quantification)
+      quant_tags = root.findall(
+        'MethodPart/MethodPart/Parameter[@name=\'TagName\']',
+      )
+      tag_names = [i.text for i in quant_tags]
+    else:
+      tag_names = None
+  elif pd_version[:2] in [(2,1)]:
+    quantification = cursor.execute(
+      '''
+      SELECT
+      AnalysisDefinitionXML
+      FROM AnalysisDefinition
+      ''',
+    ).fetchone()
+
+    if quantification:
+      quantification = quantification[0]
+
+      if sys.version_info.major < 3:
+        quantification = quantification.encode('utf-8')
+
+      root = ET.fromstring(quantification)
+      quant_tags = root.findall(
+        'StudyDefinition/QuanMethods/'
+        'QuanMethod/QuanChannels/QuanChannel',
+      )
+      tag_names = [i.get('Name') for i in quant_tags]
+    else:
+      tag_names = None
+  else:
+    raise Exception(
+      'Unsupported Proteome Discoverer Version: {}'.format(pd_version)
+    )
+
+  return tag_names
 
 def _read_peptides(conn, pd_version, pick_best_psm=False):
     if pd_version[:2] in [(1, 4)]:
@@ -552,7 +609,7 @@ def _get_quantifications(df, cursor, pd_version, tag_names):
 
     # XXX: Bug: Peak heights do not exactly match those from Discoverer
 
-    if pd_version[:2] in [(1, 4)]:
+    if pd_version[:2] in [(1, 4), (2,1)]:
         vals = cursor.execute(
             '''
             SELECT
@@ -1206,6 +1263,8 @@ def read_discoverer_msf(basename, msf_path=None, pick_best_psm=False):
             )
         )
 
+        tag_names = _get_quant_tags(cursor, pd_version)
+
         df = _get_proteins(df, cursor, pd_version)
         df = _extract_sequence(df)
         df = _extract_confidence(df)
@@ -1215,6 +1274,7 @@ def read_discoverer_msf(basename, msf_path=None, pick_best_psm=False):
         df = _get_q_values(df, cursor, pd_version)
         df = _get_ms_data(df, cursor, pd_version)
         df = _get_filenames(df, cursor, pd_version)
+        df = _get_quantifications(df, cursor, pd_version,tag_names)
 
         df = _set_defaults(df)
 
