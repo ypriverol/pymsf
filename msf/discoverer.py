@@ -615,7 +615,9 @@ def _get_quantifications(df, cursor, pd_version, tag_names):
             SELECT
             Peptides.PeptideID,
             ReporterIonQuanResults.QuanChannelID,
-            ReporterIonQuanResults.Height
+            ReporterIonQuanResults.Height,
+            ReporterIonQuanResultsSearchSpectra.SearchSpectrumID,
+            ReporterIonQuanResults.SpectrumID
 
             FROM Peptides
 
@@ -655,9 +657,37 @@ def _get_quantifications(df, cursor, pd_version, tag_names):
             'Unsupported Proteome Discoverer Version: {}'.format(pd_version)
         )
 
+    sql_query = '''
+            SELECT
+            Peptides.PeptideID,
+            ReporterIonQuanResults.QuanChannelID,
+            ReporterIonQuanResults.Height,
+            ReporterIonQuanResultsSearchSpectra.SearchSpectrumID,
+            ReporterIonQuanResults.SpectrumID
+
+            FROM Peptides
+
+            JOIN ReporterIonQuanResults
+            ON Peptides.SpectrumID=
+            ReporterIonQuanResultsSearchSpectra.SearchSpectrumID
+
+            JOIN ReporterIonQuanResultsSearchSpectra
+            ON ReporterIonQuanResultsSearchSpectra.SpectrumID=
+            ReporterIonQuanResults.SpectrumID
+            ''';
+    df_quant = pd.read_sql_query(
+      sql=sql_query,
+      con=cursor.connection,
+      index_col='PeptideID',
+    )
+    # mapping = dict()
+    # for peptide_id, channel_id, height, searchspectrumid, spectrumid in vals:
+    #   if peptide_id in df.index:
+    #     mapping[(peptide_id, channel_id)] = height
+
     mapping = {
         (peptide_id, channel_id): height
-        for peptide_id, channel_id, height in vals
+        for peptide_id, channel_id, height, searchspectrumid, spectrumid in vals
         if peptide_id in df.index
     }
 
@@ -679,8 +709,8 @@ def _get_quantifications(df, cursor, pd_version, tag_names):
             for val in vals
         ]
 
-        if not row['Sequence'].is_labeled:
-            vals = [np.nan] * len(vals)
+        # if not row['Sequence'].is_labeled:
+        #     vals = [np.nan] * len(vals)
 
         return pd.Series(vals, index=col_names)
 

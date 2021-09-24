@@ -26,7 +26,7 @@ def read_msf(ctx, msf_file: str, output: str, filter : bool):
   if filter:
     df = df[df['Confidence Level'] == 'High']
 
-  df.to_csv(output, sep="\t", index=False)
+  df.to_csv(output, sep="\t", index=True, na_rep='NULL')
 
 def main():
     read_msf()
