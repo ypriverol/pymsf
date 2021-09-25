@@ -9,15 +9,31 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
 def print_help(ctx):
+  """
+
+  Parameters
+  ----------
+  ctx
+  """
   click.echo(ctx.get_help())
   ctx.exit()
+
 
 @click.command()
 @click.option('--msf_file', '-i', help='msf file')
 @click.option('--output', '-o', help='Output tab')
-@click.option('--filter', '-f', help='Filter only High-confidence peptides', is_flag = True, default = False)
+@click.option('--filter', '-f', help='Filter only High-confidence peptides', is_flag=True, default=False)
 @click.pass_context
-def read_msf(ctx, msf_file: str, output: str, filter : bool):
+def read_msf(ctx, msf_file: str, output: str, filter: bool):
+  """
+
+  Parameters
+  ----------
+  ctx
+  msf_file
+  output
+  filter
+  """
   if msf_file is None:
     print_help(ctx)
 
@@ -28,9 +44,13 @@ def read_msf(ctx, msf_file: str, output: str, filter : bool):
 
   df.to_csv(output, sep="\t", index=True, na_rep='NULL')
 
+
 def main():
-    read_msf()
+  """
+
+  """
+  read_msf()
 
 
 if __name__ == "__main__":
-    main()
+  main()
